@@ -350,8 +350,20 @@
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    connection.on("RecibirOferta", async (json) => {
+    // Ajuste: en RecibirOferta, recibimos también el "fromUserId"
+    connection.on("RecibirOferta", async (json, fromUserId) => {
       const data = JSON.parse(json);
+
+      // Si el backend envía fromUserId como segundo argumento:
+      if (fromUserId && typeof fromUserId === "string") {
+        remoteUserId = fromUserId;
+      } else {
+        // Si el backend NO te envía fromUserId, pero tu JSON contiene algún identificador, puedes intentar extraerlo aquí.
+        // Por ejemplo: si data.fromUserId existe, puedes usarlo. Si no, deberías ajustar el backend.
+        // remoteUserId = data.fromUserId || remoteUserId;
+        // En el peor de los casos, deberías preguntar al backend para que siempre envíe el fromUserId.
+      }
+
       if (pc) hangupCall(false);
       pc = createPeerConnection();
       const aceptar = confirm("Llamada entrante. ¿Aceptar?");
@@ -413,7 +425,6 @@
 
     try {
       await connection.start();
-    //  alert("Conectado a SignalR como usuario " + userId);
       console.log("Conectado a SignalR");
     } catch (err) {
       alert("Error conexión SignalR: " + err);
