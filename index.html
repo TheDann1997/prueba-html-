@@ -346,7 +346,7 @@
   async function iniciarConexion(userId) {
     localUserId = userId;
     connection = new signalR.HubConnectionBuilder()
-      .withUrl(`https://signalr2.onrender.com/chatHub?userId=${userId}`) // AJUSTA el puerto según tu backend
+      .withUrl(`https://signalr2.onrender.com/ChatHub?userId=${userId}`) // AJUSTA el puerto según tu backend
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
