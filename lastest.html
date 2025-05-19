@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Videollamada Avanzada</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0d1117;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-wrapper {
+      flex: 1;
+      position: relative;
+      background-color: black;
+    }
+    #remoteVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #localVideo {
+      width: 180px;
+      height: 130px;
+      object-fit: cover;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      border: 2px solid #1f6feb;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 10px;
+      background: #161b22;
+    }
+    .manual-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 10px;
+      background: #222b3a;
+    }
+    .control-btn, .manual-btn {
+      background-color: #21262d;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .manual-btn {
+      border-radius: 6px;
+      width: auto;
+      height: auto;
+      padding: 7px 15px;
+      font-size: 15px;
+      color: #fff;
+      background: #2563eb;
+      transition: background 0.2s;
+    }
+    .manual-btn:hover {
+      background: #1740a7;
+    }
+    .control-btn:hover {
+      background-color: #30363d;
+    }
+    .control-btn img {
+      width: 20px;
+      height: 20px;
+    }
+    .hangup {
+      background-color: #d32f2f;
+    }
+    .hangup:hover {
+      background-color: #b71c1c;
+    }
+    .screen-share-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+    .screen-video {
+      flex: 3;
+      background-color: black;
+      position: relative;
+    }
+    #sharedScreen {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .side-cams {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0d1117;
+      padding: 5px;
+      gap: 10px;
+      position: relative;
+    }
+    .side-cams video {
+      width: 100%;
+      height: 45%;
+      object-fit: cover;
+      border: 2px solid #1f6feb;
+      border-radius: 10px;
+    }
+    #toggleCams {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #21262d;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .hidden {
+      display: none;
+    }
+    /* Modals */
+    .modal-bg {
+      position:fixed;
+      top:0;left:0;
+      width:100vw;height:100vh;
+      background:rgba(10,17,31,0.92);
+      display:flex;align-items:center;justify-content:center;
+      z-index:9999;
+    }
+    .modal-box {
+      background:#161b22;
+      padding:32px 24px;
+      border-radius:15px;
+      box-shadow:0 2px 18px #0008;
+      min-width:270px;max-width:90vw;
+      text-align:center;
+    }
+    .modal-box h2 {
+      margin-top:0;
+      font-size:22px;
+    }
+    .modal-input {
+      width:90%;
+      padding:10px 8px;
+      border-radius:7px;
+      border:1px solid #4a69bd;
+      font-size:16px;
+      margin-bottom:18px;
+      background: #0d1117;
+      color: #fff;
+    }
+    .error-border {
+      border:2px solid red !important;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+</head>
+<body>
+  <!-- Modal para User ID propio -->
+  <div id="userIdModal" class="modal-bg">
+    <div class="modal-box">
+      <h2>Ingrese su User ID</h2>
+      <input type="text" id="userIdInput" class="modal-input" placeholder="Ej: usuario1" autocomplete="username" />
+      <br>
+      <button id="userIdBtn" class="manual-btn" style="padding:8px 20px;font-size:16px;">Entrar</button>
+    </div>
+  </div>
+  <!-- Modal para ID de llamada -->
+  <div id="callModal" class="modal-bg" style="display:none;">
+    <div class="modal-box">
+      <h2>Ingrese el ID del usuario remoto</h2>
+      <input type="text" id="callInput" class="modal-input" placeholder="Ej: usuario2" autocomplete="off" />
+      <br>
+      <button id="callBtn" class="manual-btn" style="padding:8px 20px;font-size:16px;">Llamar</button>
+    </div>
+  </div>
+
+  <div class="manual-controls">
+    <button class="manual-btn" id="btnIniciarConexion" disabled>Iniciar Conexión</button>
+    <button class="manual-btn" id="btnIniciarLlamada" disabled>Iniciar Llamada</button>
+  </div>
+  <div class="main" id="callArea">
+    <div class="video-wrapper" id="normalLayout">
+      <video id="remoteVideo" autoplay playsinline></video>
+      <video id="localVideo" autoplay muted playsinline></video>
+    </div>
+    <div class="screen-share-layout hidden" id="screenLayout">
+      <div class="screen-video">
+        <video id="sharedScreen" autoplay playsinline></video>
+      </div>
+      <div class="side-cams" id="camsColumn">
+        <button id="toggleCams">Ocultar</button>
+        <video id="remoteMini" autoplay playsinline></video>
+        <video id="localMini" autoplay muted playsinline></video>
+      </div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="control-btn" id="toggleCamera">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/video-call.png" />
+    </button>
+    <button class="control-btn" id="toggleMic">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/microphone.png" />
+    </button>
+    <button class="control-btn" id="shareScreen">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/monitor.png" />
+    </button>
+    <button class="control-btn hangup" id="hangup">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/phone.png" />
+    </button>
+  </div>
+<script>
+  const localVideo = document.getElementById('localVideo');
+  const remoteVideo = document.getElementById('remoteVideo');
+  const remoteMini = document.getElementById('remoteMini');
+  const localMini = document.getElementById('localMini');
+  const sharedScreen = document.getElementById('sharedScreen');
+  const toggleCamsBtn = document.getElementById('toggleCams');
+
+  const layoutNormal = document.getElementById('normalLayout');
+  const layoutScreen = document.getElementById('screenLayout');
+  const camsColumn = document.getElementById('camsColumn');
+
+  let localStream = null;
+  let pc = null;
+  let remoteStream = null;
+  let connection = null;
+
+  let localUserId = null;
+  let remoteUserId = null;
+
+  let pendingCandidates = [];
+
+  // MODALS DE USUARIO Y LLAMADA
+  window.addEventListener('DOMContentLoaded', ()=>{
+    // Modal User ID propio
+    const userIdModal = document.getElementById('userIdModal');
+    const userIdInput = document.getElementById('userIdInput');
+    const userIdBtn = document.getElementById('userIdBtn');
+    // Modal para llamar
+    const callModal = document.getElementById('callModal');
+    const callInput = document.getElementById('callInput');
+    const callBtn = document.getElementById('callBtn');
+
+    // Enter para ambos inputs
+    userIdInput.addEventListener('keydown', function(e) {
+      if (e.key === "Enter") userIdBtn.click();
+    });
+    callInput.addEventListener('keydown', function(e) {
+      if (e.key === "Enter") callBtn.click();
+    });
+
+    userIdBtn.onclick = async () => {
+      const userId = userIdInput.value.trim();
+      if (!userId) {
+        userIdInput.classList.add("error-border");
+        userIdInput.focus();
+        return;
+      }
+      userIdInput.classList.remove("error-border");
+      userIdModal.style.display = "none";
+      document.getElementById("btnIniciarConexion").disabled = false;
+      await iniciarConexion(userId);
+      document.getElementById("btnIniciarLlamada").disabled = false;
+    };
+
+    callBtn.onclick = async () => {
+      const remoteId = callInput.value.trim();
+      if (!remoteId) {
+        callInput.classList.add("error-border");
+        callInput.focus();
+        return;
+      }
+      callInput.classList.remove("error-border");
+      callModal.style.display = "none";
+      await startCall(remoteId);
+    };
+
+    // Botón para mostrar modal de llamada
+    document.getElementById("btnIniciarLlamada").onclick = () => {
+      callInput.value = "";
+      callModal.style.display = "flex";
+      setTimeout(()=>callInput.focus(), 120);
+    };
+    // Opcional: Botón de conexión manual
+    document.getElementById("btnIniciarConexion").onclick = async () => {
+      userIdModal.style.display = "flex";
+      setTimeout(()=>userIdInput.focus(), 120);
+    };
+  });
+
+  function createPeerConnection() {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }
+      ],
+    });
+
+    pc.onicecandidate = event => {
+      if (event.candidate) {
+        sendSignal("candidate", event.candidate);
+      }
+    };
+
+    remoteStream = new MediaStream();
+    remoteVideo.srcObject = remoteStream;
+    remoteMini.srcObject = remoteStream;
+
+    pc.ontrack = (event) => {
+      event.streams[0].getTracks().forEach(track => {
+        if (!remoteStream.getTracks().some(t => t.id === track.id)) {
+          remoteStream.addTrack(track);
+        }
+      });
+    };
+
+    pc.onconnectionstatechange = () => {
+      if (["disconnected", "closed", "failed"].includes(pc.connectionState)) {
+        hangupCall();
+      }
+    };
+
+    return pc;
+  }
+
+  async function iniciarConexion(userId) {
+    localUserId = userId;
+    connection = new signalR.HubConnectionBuilder()
+      .withUrl(`https://signalr2.onrender.com/chatHub?userId=${userId}`) // AJUSTA el puerto según tu backend
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    connection.on("RecibirOferta", async (json) => {
+      const data = JSON.parse(json);
+      if (pc) hangupCall(false);
+      pc = createPeerConnection();
+      const aceptar = confirm("Llamada entrante. ¿Aceptar?");
+      if (!aceptar) {
+        pc.close();
+        pc = null;
+        return;
+      }
+      if (!localStream) {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+        localMini.srcObject = localStream;
+      }
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      await pc.setRemoteDescription(new RTCSessionDescription(data));
+      if (pendingCandidates.length > 0) {
+        for (const cand of pendingCandidates) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(cand));
+          } catch (e) {
+            console.error("Error al agregar ICE candidate pendiente", e);
+          }
+        }
+        pendingCandidates = [];
+      }
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      sendSignal("answer", answer);
+    });
+
+    connection.on("RecibirRespuesta", async (json) => {
+      const data = JSON.parse(json);
+      if (!pc) return;
+      await pc.setRemoteDescription(new RTCSessionDescription(data));
+      if (pendingCandidates.length > 0) {
+        for (const cand of pendingCandidates) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(cand));
+          } catch (e) {
+            console.error("Error al agregar ICE candidate pendiente", e);
+          }
+        }
+        pendingCandidates = [];
+      }
+    });
+
+    connection.on("RecibirIceCandidate", async (json) => {
+      const data = JSON.parse(json);
+      try {
+        if (pc && pc.remoteDescription && pc.remoteDescription.type) {
+          await pc.addIceCandidate(new RTCIceCandidate(data));
+        } else {
+          pendingCandidates.push(data);
+        }
+      } catch (e) {
+        console.error("Error al agregar ICE candidate", e);
+      }
+    });
+
+    try {
+      await connection.start();
+    //  alert("Conectado a SignalR como usuario " + userId);
+      console.log("Conectado a SignalR");
+    } catch (err) {
+      alert("Error conexión SignalR: " + err);
+      console.error("Error conexión SignalR:", err);
+    }
+  }
+
+  function sendSignal(type, data) {
+    if (!remoteUserId) {
+      console.error("No hay usuario remoto asignado");
+      return;
+    }
+    if (!connection) return;
+    const payload = JSON.stringify(data);
+
+    switch (type) {
+      case "offer":
+        connection.invoke("EnviarOferta", remoteUserId, payload);
+        break;
+      case "answer":
+        connection.invoke("EnviarRespuesta", remoteUserId, payload);
+        break;
+      case "candidate":
+        connection.invoke("EnviarIceCandidate", remoteUserId, payload);
+        break;
+      default:
+        console.warn("Tipo de señal no reconocido:", type);
+    }
+  }
+
+  async function startCall(remoteId) {
+    if (!connection || connection.state !== "Connected") {
+      alert("¡Primero debes iniciar la conexión!");
+      return;
+    }
+    remoteUserId = remoteId;
+    if (pc) hangupCall(false);
+    pc = createPeerConnection();
+    if (!localStream) {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localVideo.srcObject = localStream;
+      localMini.srcObject = localStream;
+    }
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    sendSignal("offer", offer);
+  }
+
+  document.getElementById('shareScreen').onclick = async () => {
+    if (!localStream || !pc) return;
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      sharedScreen.srcObject = screenStream;
+      layoutNormal.classList.add('hidden');
+      layoutScreen.classList.remove('hidden');
+      const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (sender && screenStream.getVideoTracks().length > 0) {
+        sender.replaceTrack(screenStream.getVideoTracks()[0]);
+      }
+      screenStream.getVideoTracks()[0].onended = () => {
+        if (sender && localStream.getVideoTracks().length > 0) {
+          sender.replaceTrack(localStream.getVideoTracks()[0]);
+        }
+        layoutNormal.classList.remove('hidden');
+        layoutScreen.classList.add('hidden');
+      };
+    } catch (e) {
+      console.error('Error al compartir pantalla:', e);
+    }
+  };
+
+  function hangupCall(showAlert = true) {
+    if (pc) {
+      pc.onicecandidate = null;
+      pc.ontrack = null;
+      pc.onconnectionstatechange = null;
+      pc.close();
+      pc = null;
+    }
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+      localStream = null;
+    }
+    if (remoteStream) {
+      remoteStream.getTracks().forEach(track => track.stop());
+      remoteStream = null;
+    }
+    localVideo.srcObject = null;
+    remoteVideo.srcObject = null;
+    localMini.srcObject = null;
+    remoteMini.srcObject = null;
+    sharedScreen.srcObject = null;
+    layoutNormal.classList.remove('hidden');
+    layoutScreen.classList.add('hidden');
+    if (showAlert) alert("Llamada finalizada");
+  }
+
+  document.getElementById('hangup').onclick = () => {
+    hangupCall(true);
+  };
+
+  document.getElementById('toggleMic').onclick = () => {
+    if (!localStream) return;
+    const audio = localStream.getAudioTracks()[0];
+    if (audio) audio.enabled = !audio.enabled;
+  };
+
+  document.getElementById('toggleCamera').onclick = () => {
+    if (!localStream) return;
+    const video = localStream.getVideoTracks()[0];
+    if (video) video.enabled = !video.enabled;
+  };
+
+  toggleCamsBtn.onclick = () => {
+    if (camsColumn.style.display === 'none') {
+      camsColumn.style.display = 'flex';
+      toggleCamsBtn.innerText = 'Ocultar';
+    } else {
+      camsColumn.style.display = 'none';
+      toggleCamsBtn.innerText = 'Mostrar';
+    }
+  };
+
+</script>
+</body>
+</html>
