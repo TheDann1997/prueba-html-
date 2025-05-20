@@ -251,6 +251,18 @@
 
   let pendingCandidates = [];
 
+  // Exponer método global para integración con C#
+  window.integracionWpf = {
+    iniciar: async function(usuarioLocal, usuarioRemoto) {
+      // Oculta modales
+      document.getElementById('userIdModal').style.display = "none";
+      document.getElementById('callModal').style.display = "none";
+      // Inicia la conexión y la llamada automáticamente
+      await iniciarConexion(usuarioLocal);
+      await startCall(usuarioRemoto);
+    }
+  };
+  
   // MODALS DE USUARIO Y LLAMADA
   window.addEventListener('DOMContentLoaded', ()=>{
     // Modal User ID propio
