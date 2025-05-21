@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="user-profile">
+        <div class="user-info">
+          <div class="avatar">DA</div>
+          <div class="user-details">
+            <div class="name">Daniel Agudelo</div>
+            <div class="email">daniel@chatapp.com</div>
+            <div class="status">Disponible</div>
+          </div>
+        </div>
+        <div class="sidebar-actions">
+          <button><i class="fas fa-cog"></i> Configuración</button>
+          <button><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+        </div>
+      </div>
+      <div class="contacts-section">
+        <!-- Acordeón CHATS -->
+        <div class="accordion open">
+          <div class="accordion-header" data-target="#chats-list">
+            <span class="accordion-arrow"></span>
+            <span class="section-toggle">Chats</span>
+          </div>
+          <div class="accordion-content" id="chats-list">
+            <div class="contact-item">
+              <div class="contact-avatar" style="background: #e91e63;">NC</div>
+              <div class="contact-details">
+                <div class="contact-name">numrot.com</div>
+                <div class="contact-email">numrot@chat.com</div>
+              </div>
+              <div class="badge">2</div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-avatar" style="background: #4caf50;">ND</div>
+              <div class="contact-details">
+                <div class="contact-name">NumRot Desarrollo</div>
+                <div class="contact-email">nd@chat.com</div>
+              </div>
+              <div class="badge">4</div>
+            </div>
+          </div>
+        </div>
+        <!-- Acordeón GRUPOS -->
+        <div class="accordion open">
+          <div class="accordion-header" data-target="#grupos-list">
+            <span class="accordion-arrow"></span>
+            <span class="section-toggle">Grupos</span>
+          </div>
+          <div class="accordion-content" id="grupos-list">
+            <div class="contact-item">
+              <div class="contact-avatar" style="background: #3f51b5;">GS</div>
+              <div class="contact-details">
+                <div class="contact-name">Grupo Soporte</div>
+                <div class="contact-email">soporte@grupo.com</div>
+              </div>
+              <div class="badge">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- CHAT AREA -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <div class="contact-info">
+          <div class="avatar">JB</div>
+          <div>
+            <div class="name">Juan Esteban Bedoya</div>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button title="Llamada"><i class="fas fa-phone"></i></button>
+          <button title="Videollamada"><i class="fas fa-video"></i></button>
+        </div>
+      </div>
+      <div class="chat-messages">
+        <!-- Mensajes ejemplo -->
+        <div class="message-row left">
+          <div class="avatar-msg">JB</div>
+          <div class="message-bubble">
+            <div class="message-meta">
+              Juan Esteban Bedoya <span class="message-time">3:15 p.m.</span>
+            </div>
+            <div class="message-text">
+              Ahhh espere, usted me dice es ponerlos en Oficina?<br>
+              <span class="message-subtext">Eso sí no sé</span>
+            </div>
+          </div>
+        </div>
+        <div class="message-row right">
+          <div class="message-bubble">
+            <div class="message-time-right">3:15 p.m.</div>
+            <div class="message-text">
+              no<br>
+              linkear los logos iso con el PDF
+            </div>
+          </div>
+        </div>
+        <div class="message-row left">
+          <div class="avatar-msg">JB</div>
+          <div class="message-bubble">
+            <div class="message-meta">
+              Juan Esteban Bedoya <span class="message-time">3:16 p.m.</span>
+            </div>
+            <div class="message-text">
+              Tiene que ser también en DreamHost? Dale entonces le pregunto a Jaime.<br>
+              <span class="message-subtext">Para poderlas linkear, no sabía que también se montaban allí</span>
+            </div>
+          </div>
+        </div>
+        <div class="message-row right">
+          <div class="message-bubble">
+            <div class="message-time-right">3:17 p.m.</div>
+            <div class="message-text">
+              no, yo los monto en dream host<br>
+              y te paso las url para que usted los linkee desde el wordpress
+            </div>
+          </div>
+        </div>
+        <div class="message-row left">
+          <div class="avatar-msg">JB</div>
+          <div class="message-bubble">
+            <div class="message-meta">
+              Juan Esteban Bedoya <span class="message-time">3:17 p.m.</span>
+            </div>
+            <div class="message-text">
+              Listo, gracias Daniel
+            </div>
+          </div>
+        </div>
+        <div class="message-row right">
+          <div class="message-bubble">
+            <div class="message-time-right">3:34 p.m.</div>
+            <div class="message-text">
+              ya los monte
+            </div>
+            <div class="message-removed">
+              <em>Se ha eliminado este mensaje.</em> <a href="#">Deshacer</a>
+            </div>
+            <div class="message-removed">
+              <em>Se ha eliminado este mensaje.</em> <a href="#">Deshacer</a>
+            </div>
+            <div class="message-text">
+              son 4 PDF<br>
+              dos en español y dos en inglés
+            </div>
+            <div class="message-text">
+              <a href="https://www.numrot.com/pdf/Certificado_ISO_IEC_27001_ES.pdf" target="_blank">https://www.numrot.com/pdf/Certificado_ISO_IEC_27001_ES.pdf</a><br>
+              <a href="https://www.numrot.com/pdf/Certificado_ISO_IEC_27001_Ingles.pdf" target="_blank">https://www.numrot.com/pdf/Certificado_ISO_IEC_27001_Ingles.pdf</a><br>
+              <a href="https://www.numrot.com/pdf/Certificado_ISO_9001_ES.pdf" target="_blank">https://www.numrot.com/pdf/Certificado_ISO_9001_ES.pdf</a><br>
+              <a href="https://www.numrot.com/pdf/Certificado_ISO_9001_Ingles.pdf" target="_blank">https://www.numrot.com/pdf/Certificado_ISO_9001_Ingles.pdf</a>
+            </div>
+            <div class="message-text">estos son los link...</div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <button title="Emoji"><i class="fas fa-smile"></i></button>
+        <input type="text" placeholder="Escribe un mensaje..." />
+        <button title="GIF"><i class="fas fa-image"></i></button>
+        <button title="Audio"><i class="fas fa-microphone"></i></button>
+        <button title="Adjuntar archivo"><i class="fas fa-paperclip"></i></button>
+        <button title="Enviar"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+  <script src="accordion.js"></script>
+</body>
+</html>
