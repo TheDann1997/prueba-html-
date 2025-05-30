@@ -16,12 +16,14 @@ body {
   width: 100%;
 }
 
+/* SIDEBAR */
 .sidebar {
   width: 280px;
   background: #ffffff;
   border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
+  height: 100vh;
 }
 
 .user-profile {
@@ -66,14 +68,25 @@ body {
   color: #00a676;
 }
 
-.sidebar-actions {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.contacts-section {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
 }
 
-.sidebar-actions button {
+/* Sidebar actions al fondo, en fila y más abajo */
+.sidebar-actions-bottom {
+  /* margin-top: auto; */
+  padding: 10px 10px 10px 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  justify-content: center;
+}
+
+.sidebar-actions-bottom button {
   background: none;
   border: none;
   font-size: 14px;
@@ -81,16 +94,16 @@ body {
   align-items: center;
   color: #444;
   gap: 8px;
-  padding: 5px 12px;
+  padding: 8px 18px;
   cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.18s;
+}
+.sidebar-actions-bottom button:hover {
+  background: #f4f4f6;
 }
 
-.contacts-section {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 10px;
-}
-
+/* ACCORDION */
 .accordion {
   margin-bottom: 10px;
   background: transparent;
@@ -341,6 +354,7 @@ body {
   cursor: pointer;
 }
 
+/* BARRA DE MENSAJES ABAJO REDONDEADA */
 .chat-input {
   display: flex;
   align-items: center;
@@ -348,11 +362,12 @@ body {
   padding: 10px 16px;
   border-top: 1px solid #ddd;
   gap: 10px;
-  /* NUEVO: MISMO ANCHO QUE LOS MENSAJES Y CENTRADO */
   max-width: 700px;
   width: 100%;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 32px auto;  /* Más espacio abajo */
   box-sizing: border-box;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px 0 rgba(55,56,112,0.05);
 }
 
 .chat-input input {
